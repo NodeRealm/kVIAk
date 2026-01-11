@@ -9,12 +9,110 @@ const specialEl = document.getElementById("special");
 const specialBtn = document.getElementById("specialBtn");
 
 const fighters = [
-  { name: "Jason", color: "#5cb85c", special: "Crystal Lake Cleaver" },
-  { name: "Freddy", color: "#ff884d", special: "Nightmare Slash" },
-  { name: "Michael", color: "#d9d9d9", special: "Silent Stab" },
-  { name: "Art", color: "#ffffff", special: "Terrifier Twirl" },
-  { name: "Pennywise", color: "#ff3b6a", special: "Deadlights Lunge" },
-  { name: "Chucky", color: "#f5c542", special: "Doll Rage" },
+  { name: "Jason", palette: "jason", special: "Crystal Lake Cleaver" },
+  { name: "Freddy", palette: "freddy", special: "Nightmare Slash" },
+  { name: "Michael", palette: "michael", special: "Silent Stab" },
+  { name: "Art", palette: "art", special: "Terrifier Twirl" },
+  { name: "Pennywise", palette: "pennywise", special: "Deadlights Lunge" },
+  { name: "Chucky", palette: "chucky", special: "Doll Rage" },
+];
+
+const spritePalettes = {
+  base: {
+    ".": null,
+    S: "#1a1a1a",
+    F: "#f1d8c5",
+    M: "#e5e5e5",
+    R: "#b21f24",
+    B: "#1f3a93",
+    G: "#215c3b",
+    Y: "#d6a319",
+    O: "#f08f3c",
+    W: "#f7f7f7",
+    H: "#7a4f2f",
+  },
+  jason: {
+    S: "#1a1a1a",
+    F: "#e9d4be",
+    M: "#efe9e2",
+    R: "#ad1b1b",
+    G: "#2b6b3f",
+    B: "#4c6a82",
+    H: "#4b2f1e",
+  },
+  freddy: {
+    S: "#1a1a1a",
+    F: "#e5c6a7",
+    M: "#6b3b1e",
+    R: "#a3161e",
+    O: "#f08f3c",
+    G: "#2d5a3a",
+    H: "#7a4f2f",
+  },
+  michael: {
+    S: "#1a1a1a",
+    F: "#e1e1e1",
+    M: "#f2f2f2",
+    B: "#1f2f3f",
+    G: "#203a2b",
+  },
+  art: {
+    S: "#111111",
+    F: "#f1f1f1",
+    M: "#ffffff",
+    R: "#ad1b1b",
+    W: "#f7f7f7",
+  },
+  pennywise: {
+    S: "#1a1a1a",
+    F: "#f3d8c4",
+    M: "#f8f3ef",
+    R: "#b21f24",
+    O: "#f08f3c",
+    W: "#f7f7f7",
+  },
+  chucky: {
+    S: "#1a1a1a",
+    F: "#f1c9a6",
+    M: "#e8d5c4",
+    R: "#b21f24",
+    B: "#2f4f8f",
+    G: "#2d6b3d",
+    Y: "#d6a319",
+    O: "#f08f3c",
+    H: "#7a4f2f",
+  },
+  npcFlee: {
+    S: "#1a1a1a",
+    F: "#d9c6b5",
+    M: "#f0f0f0",
+    B: "#4f7cff",
+    G: "#3c6f4c",
+  },
+  npcFight: {
+    S: "#1a1a1a",
+    F: "#d9c6b5",
+    M: "#f0f0f0",
+    R: "#e05a5a",
+    G: "#4c3a2a",
+  },
+};
+
+const spriteTemplate = [
+  "..SSSSSS..",
+  ".SMMMMMMS.",
+  ".SMFFFFMS.",
+  ".SMFRRFMS.",
+  ".SMFFFFMS.",
+  "..SSSSSS..",
+  "...GGG....",
+  "..GGBGG...",
+  ".GGGBBGG..",
+  ".GGGBBGG..",
+  ".GBBBBBG..",
+  "..BBBBB...",
+  "..B...B...",
+  ".BB...BB..",
 ];
 
 const state = {
@@ -186,11 +284,13 @@ function draw() {
 function drawPlayer() {
   const player = state.player;
   const drawX = player.x - state.scrollX;
-  ctx.fillStyle = player.fighter.color;
-  ctx.fillRect(drawX, player.y, player.width, player.height);
-
-  ctx.fillStyle = "#000";
-  ctx.fillRect(drawX + 6, player.y + 12, 8, 8);
+  drawPixelSprite({
+    x: drawX,
+    y: player.y,
+    width: player.width,
+    height: player.height,
+    paletteName: player.fighter.palette,
+  });
 
   ctx.fillStyle = "#fff";
   ctx.font = "12px Trebuchet MS";
@@ -200,8 +300,41 @@ function drawPlayer() {
 function drawNpcs() {
   state.npcs.forEach((npc) => {
     const drawX = npc.x - state.scrollX;
-    ctx.fillStyle = npc.behavior === "flee" ? "#4f7cff" : "#e05a5a";
-    ctx.fillRect(drawX, npc.y, npc.width, npc.height);
+    drawPixelSprite({
+      x: drawX,
+      y: npc.y,
+      width: npc.width,
+      height: npc.height,
+      paletteName: npc.behavior === "flee" ? "npcFlee" : "npcFight",
+    });
+  });
+}
+
+function drawPixelSprite({ x, y, width, height, paletteName }) {
+  const sprite = spriteTemplate;
+  const palette = {
+    ...spritePalettes.base,
+    ...spritePalettes[paletteName],
+  };
+  const rows = sprite.length;
+  const cols = sprite[0].length;
+  const pixelWidth = width / cols;
+  const pixelHeight = height / rows;
+
+  sprite.forEach((row, rowIndex) => {
+    [...row].forEach((cell, colIndex) => {
+      const color = palette[cell];
+      if (!color) {
+        return;
+      }
+      ctx.fillStyle = color;
+      ctx.fillRect(
+        x + colIndex * pixelWidth,
+        y + rowIndex * pixelHeight,
+        pixelWidth + 0.2,
+        pixelHeight + 0.2
+      );
+    });
   });
 }
 
