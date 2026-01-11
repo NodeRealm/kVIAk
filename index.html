@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Kill Via Kill - Side Scroller</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <h1>Kill Via Kill</h1>
+    <div class="fighter-select">
+      <span>Choose a killer:</span>
+      <div id="fighterButtons" class="fighter-buttons"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hud">
+      <div id="fighterName">Fighter: Jason</div>
+      <div id="health">Health: 100</div>
+      <div id="kills">Kills: 0</div>
+      <div id="special">Special: Not ready</div>
+    </section>
+
+    <canvas id="game" width="960" height="540" aria-label="Side scrolling fighting game"></canvas>
+
+    <section class="controls">
+      <div class="dpad">
+        <button class="control" id="left">◀</button>
+        <button class="control" id="right">▶</button>
+      </div>
+      <div class="actions">
+        <button class="control action" id="attack">Attack</button>
+        <button class="control action" id="specialBtn">Special</button>
+      </div>
+    </section>
+
+    <section class="tips">
+      <p>Some survivors run away, some fight back. Defeat 10 foes to unlock your killer's signature finisher.</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
